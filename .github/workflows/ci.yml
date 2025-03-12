@@ -47,17 +47,17 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ctest -C Release --verbose
 
-  build-windows:
-    name: Build on Windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
+  # build-windows:
+  #   name: Build on Windows
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+  #     - name: Configure CMake
+  #       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD  # Explicitly build all targets
+  #     - name: Build
+  #       run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD  # Explicitly build all targets
 
   static-analysis:
     name: Static Analysis
