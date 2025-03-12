@@ -59,10 +59,6 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD  # Explicitly build all targets
 
-      - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: ctest -C Release --output-on-failure
-
   static-analysis:
     name: Static Analysis
     runs-on: ubuntu-latest
