@@ -50,19 +50,18 @@ jobs:
   build-windows:
     name: Build on Windows
     runs-on: windows-latest
-
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config Release
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD  # Explicitly build all targets
 
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: ctest -C Release --verbose
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C Release --output-on-failure
 
   static-analysis:
     name: Static Analysis

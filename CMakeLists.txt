@@ -4,10 +4,8 @@ project(MiniCompiler VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(include)
-
-set(SOURCES
-    src/main.cpp
+# Create a library for shared sources
+add_library(minicompiler_lib STATIC
     src/lexer.cpp
     src/token.cpp
     src/symbol_table.cpp
@@ -15,7 +13,10 @@ set(SOURCES
     src/error.cpp
 )
 
-add_executable(minicompiler ${SOURCES})
+# Main executable
+add_executable(minicompiler src/main.cpp)
+target_link_libraries(minicompiler PRIVATE minicompiler_lib)
+target_include_directories(minicompiler_lib PUBLIC include)
 
 install(TARGETS minicompiler DESTINATION bin)
 
