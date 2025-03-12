@@ -32,8 +32,8 @@ The language supports:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/compiler.git
-cd compiler
+git clone https://github.com/srinjoydutta03/Mini-C-almost-compiler.git
+cd Mini-C-almost-compiler
 
 # Create build directory
 mkdir build
