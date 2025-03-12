@@ -26,13 +26,6 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest -C Release --verbose
-      
-    - name: Archive executable
-      uses: actions/upload-artifact@v3
-      with:
-        name: minicompiler-linux
-        path: ${{github.workspace}}/build/minicompiler
-        retention-days: 7
 
   build-macos:
     name: Build on macOS

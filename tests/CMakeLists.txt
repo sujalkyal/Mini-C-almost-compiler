@@ -28,4 +28,4 @@ foreach(TEST_FILE ${TEST_FILES})
 endforeach()
 
 # Add a test for the test executable
-add_test(NAME unit_tests COMMAND run_tests)
+add_test(NAME unit_tests COMMAND $<TARGET_FILE:run_tests>)
