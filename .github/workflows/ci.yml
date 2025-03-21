@@ -57,7 +57,7 @@ jobs:
   #       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
   #     - name: Build
-  #       run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD  # Explicitly build all targets
+  #       run: cmake --build ${{github.workspace}}/build --config Release 
 
   static-analysis:
     name: Static Analysis
