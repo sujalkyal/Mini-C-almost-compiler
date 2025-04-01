@@ -16,9 +16,11 @@ void TokenStream::add(Token token) {
 
 Token& TokenStream::advance() {
     if (!isAtEnd()) {
+        Token& currentToken = tokens[current];
         current++;
+        return currentToken;
     }
-    return tokens[current - 1];
+    return tokens[current];
 }
 
 bool TokenStream::isAtEnd() const {

@@ -13,6 +13,7 @@ private:
     size_t buffer_size;
     size_t line;
     size_t column;
+    size_t pos;  // Track position in buffer
     char current_char;
 
     static const std::unordered_map<std::string, KeywordType> keywords;

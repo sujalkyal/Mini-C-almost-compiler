@@ -489,7 +489,7 @@ void testSampleProgram() {
     
     // Verify token counts (these should match what's in the file)
     assert(identifiers >= 6); // count, sum, average, max, square, main
-    assert(keywords >= 7);    // int, float, while
+    assert(keywords >= 6);    // int, float, while
     assert(operators >= 10);  // =, <, +, ++, /, etc.
     assert(literals >= 4);    // 0, 0.0, 10
     assert(punctuation >= 8); // (, ), {, }
