@@ -84,7 +84,6 @@ Lexer::Lexer(std::string filename) {
     } else {
         current_char = '\0';
     }
-    pos = 0;  // Initialize position counter
 }
 
 Lexer::~Lexer() {
@@ -98,6 +97,8 @@ Lexer::~Lexer() {
 }
 
 void Lexer::advance() {
+    static size_t pos = 0;
+    
     if (current_char == '\n') {
         line++;
         column = 1;
