@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <cstdint>
-#include <cstdarg>
 
 class SourceLocation {
 public:
@@ -34,6 +33,7 @@ public:
     void note(const SourceLocation& loc, const char* format, ...);
     
     int getErrorCount() const;
+    const std::string& getCurrentFile() const { return current_file; }
     
     void cleanup();
 

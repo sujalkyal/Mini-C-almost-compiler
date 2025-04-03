@@ -81,6 +81,47 @@ make install
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+
+## Current status:
+
+TokenStream and lexical analyser implemented along with error handling
+
+Main function output:
+```
+Test file created: test_program.c
+test_program.c:5:18: error: Unterminated string literal
+    char* str = "unterminated string;
+                  ^
+Tokens in test_program.c:
+----------------------------------------
+Token: int | Type: Keyword | Line: 2, Column: 1
+Token: main | Type: Identifier | Line: 2, Column: 5
+Token: ( | Type: Punctuation | Line: 2, Column: 9
+Token: ) | Type: Punctuation | Line: 2, Column: 10
+Token: { | Type: Punctuation | Line: 2, Column: 12
+Token: int | Type: Keyword | Line: 3, Column: 5
+Token: i | Type: Identifier | Line: 3, Column: 9
+Token: = | Type: Operator | Line: 3, Column: 11
+Token: 0 | Type: IntegerLiteral, Value: 0 | Line: 3, Column: 13
+Token: ; | Type: Operator | Line: 3, Column: 14
+Token: float | Type: Keyword | Line: 4, Column: 5
+Token: x | Type: Identifier | Line: 4, Column: 11
+Token: = | Type: Operator | Line: 4, Column: 13
+Token: 10.5 | Type: FloatLiteral, Value: 10.5 | Line: 4, Column: 15
+Token: ; | Type: Operator | Line: 4, Column: 19
+Token: char | Type: Keyword | Line: 5, Column: 5
+Token: * | Type: Operator | Line: 5, Column: 9
+Token: str | Type: Identifier | Line: 5, Column: 11
+Token: = | Type: Operator | Line: 5, Column: 15
+Token:  | Type: Error | Line: 5, Column: 17
+Token: <EOF> | Type: EOF | Line: 19, Column: 1
+----------------------------------------
+Statistics:
+Identifiers: 4
+Keywords: 4
+Errors: 1
+```
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
