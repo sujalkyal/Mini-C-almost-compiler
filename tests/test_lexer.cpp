@@ -497,44 +497,8 @@ void testSampleProgram() {
     std::cout << "Sample program test passed!\n";
 }
 
-// Main function for the test executable
-int main(int argc, char* argv[]) {
-    // If a specific test suite is requested, run only that
-    if (argc > 1) {
-        std::string testSuite = argv[1];
-        
-        if (testSuite == "lexer") {
-            std::cout << "Running lexer tests...\n";
-            
-            // Run lexer test functions
-            testKeywords();
-            testIdentifiers();
-            testLiterals();
-            testOperators();
-            testPunctuation();
-            testCompleteFunction();
-            testTokenLocation();
-            testSampleProgram();
-            
-            std::cout << "All lexer tests passed!\n";
-            return 0;
-        }
-        
-        if (testSuite == "parser") {
-            std::cout << "Parser tests not implemented yet\n";
-            return 0;
-        }
-        
-        if (testSuite == "symbol_table") {
-            std::cout << "Symbol table tests not implemented yet\n";
-            return 0;
-        }
-        
-        std::cout << "Unknown test suite: " << testSuite << std::endl;
-        return 1;
-    }
-    
-    // If no specific suite is requested, run all tests
+// Main function that runs all lexer tests
+void testLexer() {
     std::cout << "Running lexer tests...\n";
     
     // Run test functions
@@ -548,8 +512,4 @@ int main(int argc, char* argv[]) {
     testSampleProgram();
     
     std::cout << "All lexer tests passed!\n";
-    
-    std::cout << "\nParser and symbol table tests not implemented yet\n";
-    
-    return 0;
 }

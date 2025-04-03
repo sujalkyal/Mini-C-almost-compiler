@@ -1,5 +1,6 @@
 # Test executable
 add_executable(run_tests 
+    test_main.cpp
     test_lexer.cpp
     test_parser.cpp
     test_symbol_table.cpp
