@@ -2,9 +2,14 @@
 #include <cassert>
 #include <sstream>
 #include <fstream>
+#include <vector>
+#include <string>
 #include "lexer.h"
 #include "token.h"
 #include "error.h"
+
+// We don't need to declare errorReporter here since it's already defined in error.cpp
+// and declared as extern in error.h
 
 // Helper function to print token info for debugging
 void printTokenInfo(const Token& token) {
@@ -46,7 +51,7 @@ void printTokenInfo(const Token& token) {
 }
 
 // Helper function to create a temporary file with the given source code
-std::string createTempFile(const std::string& source) {
+static std::string createTempFile(const std::string& source) {
     std::string tempFilename = "temp_test_source.c";
     std::ofstream file(tempFilename);
     file << source;
@@ -497,11 +502,9 @@ void testSampleProgram() {
     std::cout << "Sample program test passed!\n";
 }
 
-// Main function that runs all lexer tests
+// Main test runner function (not the actual main)
 void testLexer() {
-    std::cout << "Running lexer tests...\n";
-    
-    // Run test functions
+    // Run all the tests
     testKeywords();
     testIdentifiers();
     testLiterals();

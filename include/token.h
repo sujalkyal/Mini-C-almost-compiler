@@ -74,6 +74,7 @@ public:
     bool isAtEnd() const;
     void reset();
     void synchronize();
+    void rewind();
 };
 
 #endif // TOKEN_H

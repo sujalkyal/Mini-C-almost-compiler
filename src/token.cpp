@@ -52,3 +52,9 @@ void TokenStream::synchronize() {
         advance();
     }
 }
+
+void TokenStream::rewind() {
+    if (current > 0) {
+        current--;
+    }
+}
