@@ -281,15 +281,11 @@ void testWhileLoopExample() {
     std::cout << "While loop example test passed!" << std::endl;
 }
 
-// Main function for the test executable
-void testSymbolTable() {
-    std::cout << "Symbol table tests are prepared but not fully implemented yet.\n";
-    std::cout << "To run symbol table tests, implement the missing functions in src/symbol_table.cpp\n";
-    std::cout << "and set SYMBOL_TABLE_IMPLEMENTED to true in test_main.cpp\n";
+// Main test runner function (replaces main to avoid duplicate symbols)
+int run_symbol_table_tests() {
+    std::cout << "==== RUNNING SYMBOL TABLE TESTS ====" << std::endl;
     
-    // The following tests will be run when the symbol table is implemented
-    /*
-    // Run test functions
+    // Run all test functions
     testBasicFunctionality();
     testScoping();
     testNestedScopes();
@@ -298,6 +294,7 @@ void testSymbolTable() {
     testGetAllSymbols();
     testWhileLoopExample();
     
-    std::cout << "All symbol table tests passed!\n";
-    */
+    std::cout << "All symbol table tests passed!" << std::endl;
+    
+    return 0;
 }

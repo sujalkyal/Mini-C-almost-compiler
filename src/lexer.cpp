@@ -128,7 +128,7 @@ Token Lexer::identifier() {
     token.loc = loc;
     
     // Read identifier
-    while (isalnum(current_char) || current_char == '_') {
+    while (isalnum(current_char) || current_char == '_') { 
         id += current_char;
         advance();
     }
@@ -226,16 +226,35 @@ TokenStream Lexer::tokenize() {
                         case '"': string_value += '"'; break;
                         default:
                             errorReporter.error(loc, "Invalid escape sequence '\\%c'", current_char);
+                            // Include the character literally, with the backslash
+                            string_value += '\\';
+                            string_value += current_char;
                     }
+                    advance();
                 } else {
                     string_value += current_char;
+                    advance();
                 }
-                advance();
             }
-            
             if (current_char == '\0') {
                 errorReporter.error(loc, "Unterminated string literal");
                 token.type = TokenType::Error;
+                token.lexeme = ""; // Empty lexeme for error token
+                
+                // Add the error token to the token stream
+                tokens.push_back(token);
+                
+                // Force recovery - attempt to continue at the next line if possible
+                while (current_char != '\0' && current_char != '\n') {
+                    advance();
+                }
+                if (current_char == '\n') {
+                    advance(); // Skip the newline to start fresh on the next line
+                }
+                
+                // Skip the token push at the end of this branch
+                continue;
+
             } else {
                 // Skip closing quote
                 advance();
@@ -248,8 +267,11 @@ TokenStream Lexer::tokenize() {
                 char* str_value = new char[string_value.length() + 1];
                 strcpy(str_value, string_value.c_str());
                 token.value.string_value = str_value;
+                
+                // Add the string literal token to the token stream
+                tokens.push_back(token);
             }
-            tokens.push_back(token);
+            continue;
         }
         else {
             // Operators and punctuation
@@ -567,13 +589,16 @@ TokenStream Lexer::tokenize() {
                     // Unrecognized character
                     errorReporter.error(loc, "Unexpected character '%c'", current_char);
                     token.type = TokenType::Error;
-                    token.lexeme = current_char;
+                    token.lexeme = std::string(1, current_char);
                     advance();
+                    
+                    // Always add the error token to the token stream
+                    tokens.push_back(token);
+                    continue; // Skip the check below
             }
             
-            if (token.type != TokenType::Error) {
-                tokens.push_back(token);
-            }
+            // Only regular tokens (non-errors) reach here
+            tokens.push_back(token);
         }
     }
     
