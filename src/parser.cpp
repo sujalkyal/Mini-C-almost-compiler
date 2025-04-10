@@ -502,8 +502,8 @@ void FirstFollowSets::printSets() const {
 }
 
 // Parser implementation
-Parser::Parser(TokenStream tokens, ErrorReporter& reporter) 
-    : tokens(std::move(tokens)), error_reporter(reporter), first_follow(), parse_table(), current_token(nullptr), verbose(false) {
+Parser::Parser(TokenStream tokens, ErrorReporter& reporter, SymbolTable& symtable) 
+    : tokens(std::move(tokens)), error_reporter(reporter), symbol_table(symtable), first_follow(), parse_table(), current_token(nullptr), verbose(false) {
     this->tokens.reset();  // Reset the token stream to ensure we're at the beginning
     current_token = &this->tokens.peek();
     buildParseTable();
@@ -626,6 +626,14 @@ bool Parser::parse() {
     parse_stack.push_back("$"); // EOF marker at bottom of stack
     parse_stack.push_back(NonTerminal::PROGRAM); // Start symbol
     
+    // For symbol table processing
+    SymbolType current_type = SymbolType::UNKNOWN;
+    std::string current_identifier = "";
+    bool processing_declaration = false;
+    
+    // Create the global scope
+    symbol_table.enterScope(); // Start with scope level 0
+    
     // To prevent infinite loops, set a maximum iteration count
     int max_iterations = 1000;
     int iterations = 0;
@@ -652,6 +660,80 @@ bool Parser::parse() {
             } else if (expected == EPSILON) {
                 // Epsilon production, do nothing
                 continue;
+            } else if (expected == "{") {
+                // Opening a new block scope
+                if (current_token->lexeme == expected) {
+                    if (verbose) {
+                        std::cout << "Entering new scope at {" << std::endl;
+                    }
+                    symbol_table.enterScope();
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                } else {
+                    syntaxError("Expected '{', got '" + current_token->lexeme + "'");
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                    return false;
+                }
+            } else if (expected == "}") {
+                // Closing a block scope
+                if (current_token->lexeme == expected) {
+                    if (verbose) {
+                        std::cout << "Exiting scope at }" << std::endl;
+                    }
+                    symbol_table.exitScope();
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                } else {
+                    syntaxError("Expected '}', got '" + current_token->lexeme + "'");
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                    return false;
+                }
+            } else if (expected == "int" || expected == "float") {
+                // Capture the type for declarations
+                if (current_token->lexeme == expected) {
+                    if (verbose) {
+                        std::cout << "Type declaration: " << expected << std::endl;
+                    }
+                    current_type = (expected == "int") ? SymbolType::INT : SymbolType::FLOAT;
+                    processing_declaration = true;
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                } else {
+                    syntaxError("Expected '" + expected + "', got '" + current_token->lexeme + "'");
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                    return false;
+                }
+            } else if (expected == ";") {
+                // End of declaration or statement
+                if (current_token->lexeme == expected) {
+                    if (processing_declaration && !current_identifier.empty()) {
+                        // Finalize the declaration
+                        if (verbose) {
+                            std::cout << "Adding symbol to table: " << current_identifier << " of type " 
+                                     << (current_type == SymbolType::INT ? "int" : "float") << std::endl;
+                        }
+                        
+                        if (!symbol_table.insert(current_identifier, current_type)) {
+                            // Report redeclaration error
+                            error_reporter.error(current_token->loc, "Redeclaration of variable '%s'", 
+                                               current_identifier.c_str());
+                        }
+                        
+                        // Reset declaration tracking
+                        current_identifier = "";
+                        processing_declaration = false;
+                    }
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                } else {
+                    syntaxError("Expected ';', got '" + current_token->lexeme + "'");
+                    tokens.advance();
+                    current_token = &tokens.peek();
+                    return false;
+                }
             } else {
                 // Match terminal with current input token
                 if (current_token->lexeme == expected) {
@@ -676,6 +758,25 @@ bool Parser::parse() {
                 if (verbose) {
                     std::cout << "Matched token type: " << static_cast<int>(current_token->type) << std::endl;
                 }
+                
+                // Capture identifiers for declarations and references
+                if (expected == TokenType::Identifier) {
+                    if (processing_declaration) {
+                        // Store the identifier name for the declaration
+                        current_identifier = current_token->lexeme;
+                        if (verbose) {
+                            std::cout << "Captured identifier for declaration: " << current_identifier << std::endl;
+                        }
+                    } else {
+                        // For variable references, check if the variable is declared
+                        SymbolInfo* info = symbol_table.lookup(current_token->lexeme);
+                        if (!info) {
+                            error_reporter.error(current_token->loc, "Use of undeclared variable '%s'", 
+                                               current_token->lexeme.c_str());
+                        }
+                    }
+                }
+                
                 tokens.advance();
                 current_token = &tokens.peek();
             } else {
@@ -700,6 +801,13 @@ bool Parser::parse() {
             // For verbose mode, print what we're processing
             if (verbose) {
                 std::cout << "Processing non-terminal: " << nonTerminalToString(nonterm) << std::endl;
+            }
+            
+            // Special case for DECLARATION - prepare to process a new declaration
+            if (nonterm == NonTerminal::DECLARATION) {
+                processing_declaration = true;
+                current_type = SymbolType::UNKNOWN;
+                current_identifier = "";
             }
             
             // Special case for STATEMENT_LIST to avoid infinite loops with epsilon productions

@@ -2,6 +2,7 @@
 #include "token.h"
 #include "error.h"
 #include "parser.h"
+#include "symbol_table.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -13,6 +14,7 @@ struct Options {
     bool show_tokens = false;
     bool show_parse_table = false;
     bool show_parse_steps = false;
+    bool show_symbol_table = false;
     bool verbose = false;
     std::string input_file = "";
 };
@@ -85,6 +87,7 @@ void printUsage(const char* programName) {
               << "  --show-tokens       Display lexical tokens\n"
               << "  --show-parse-table  Display the LL(1) parse table\n"
               << "  --show-parse-steps  Show detailed parsing steps\n"
+              << "  --show-symbol-table Show symbol table contents after parsing\n"
               << "  --verbose           Enable verbose output for all stages\n" 
               << "  --help              Display this help message\n"
               << std::endl;
@@ -102,6 +105,8 @@ Options parseCommandLine(int argc, char* argv[]) {
             options.show_parse_table = true;
         } else if (arg == "--show-parse-steps") {
             options.show_parse_steps = true;
+        } else if (arg == "--show-symbol-table") {
+            options.show_symbol_table = true;
         } else if (arg == "--verbose") {
             options.verbose = true;
         } else if (arg == "--help") {
@@ -129,6 +134,7 @@ int main(int argc, char* argv[]) {
         options.show_tokens = true;
         options.show_parse_table = true;
         options.show_parse_steps = true;
+        options.show_symbol_table = true;
     }
     
     std::string filename;
@@ -142,6 +148,9 @@ int main(int argc, char* argv[]) {
     }
     
     errorReporter.init(filename);
+    
+    // Initialize symbol table
+    SymbolTable symbolTable;
     
     // Lexical analysis
     if (options.show_tokens || options.verbose) {
@@ -189,8 +198,8 @@ int main(int argc, char* argv[]) {
     if (errorReporter.getErrorCount() == 0) {
         std::cout << "\n=== SYNTAX ANALYSIS ===\n" << std::endl;
         
-        // Create the parser
-        Parser parser(parserTokens, errorReporter);
+        // Create the parser with the symbol table
+        Parser parser(parserTokens, errorReporter, symbolTable);
         
         // Enable verbose mode for detailed output if specified
         parser.setVerbose(options.show_parse_steps);
@@ -215,6 +224,12 @@ int main(int argc, char* argv[]) {
         // Check result
         if (parseSuccess) {
             std::cout << "\nParsing completed successfully." << std::endl;
+            
+            // Display symbol table if requested
+            if (options.show_symbol_table) {
+                std::cout << "\n=== SYMBOL TABLE ===\n" << std::endl;
+                symbolTable.printTable();
+            }
         } else {
             std::cout << "\nParsing failed with " << errorReporter.getErrorCount() 
                       << " syntax errors." << std::endl;
