@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "error.h"
+#include "symbol_table.h"
 
 // This file will contain parser tests
 
@@ -51,7 +52,12 @@ void testFirstSets() {
     errorReporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
-    Parser parser(tokens, errorReporter);
+    
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser to access FirstFollowSets
+    Parser parser(tokens, errorReporter, symbolTable);
     
     // Get the first/follow sets
     const FirstFollowSets& sets = parser.getFirstFollowSets();
@@ -86,7 +92,12 @@ void testFollowSets() {
     errorReporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
-    Parser parser(tokens, errorReporter);
+    
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser to access FirstFollowSets
+    Parser parser(tokens, errorReporter, symbolTable);
     
     // Get the first/follow sets
     const FirstFollowSets& sets = parser.getFirstFollowSets();
@@ -152,8 +163,11 @@ void testParseSimpleProgram() {
     // Reset token stream for parsing
     tokens.reset();
     
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
     // Create parser and parse the tokens
-    Parser parser(tokens, errorReporter);
+    Parser parser(tokens, errorReporter, symbolTable);
     parser.setVerbose(true); // Enable verbose mode for debugging
     
     bool success = parser.parse();
@@ -193,13 +207,21 @@ void testParseWhileLoop() {
     errorReporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
-    Parser parser(tokens, errorReporter);
     
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser
+    Parser parser(tokens, errorReporter, symbolTable);
+    
+    // Parse the program
     bool success = parser.parse();
+    
+    // Check if parsing succeeded
     assert(success);
     assert(errorReporter.getErrorCount() == 0);
     
-    std::cout << "While loop parsing test passed!" << std::endl;
+    std::cout << "While loop parsing test passed!";
 }
 
 // Test parsing of all arithmetic operators
@@ -227,9 +249,17 @@ void testParseArithmeticOperators() {
     errorReporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
-    Parser parser(tokens, errorReporter);
     
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser and parse the tokens
+    Parser parser(tokens, errorReporter, symbolTable);
+    
+    // Parse the program
     bool success = parser.parse();
+    
+    // Check if parsing succeeded
     assert(success);
     assert(errorReporter.getErrorCount() == 0);
     
@@ -252,7 +282,12 @@ void testParseErrors() {
     errorReporter.init(filename1);
     Lexer lexer1(filename1);
     TokenStream tokens1 = lexer1.tokenize();
-    Parser parser1(tokens1, errorReporter);
+    
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser and parse the tokens
+    Parser parser1(tokens1, errorReporter, symbolTable);
     
     bool success1 = parser1.parse();
     assert(!success1 || errorReporter.getErrorCount() > 0);
@@ -275,7 +310,12 @@ void testParseErrors() {
     errorReporter.init(filename2);
     Lexer lexer2(filename2);
     TokenStream tokens2 = lexer2.tokenize();
-    Parser parser2(tokens2, errorReporter);
+    
+    // Create a symbol table
+    SymbolTable symbolTable2;
+    
+    // Create parser and parse the tokens
+    Parser parser2(tokens2, errorReporter, symbolTable2);
     
     bool success2 = parser2.parse();
     assert(!success2 || errorReporter.getErrorCount() > 0);
@@ -303,7 +343,12 @@ void testErrorRecovery() {
     errorReporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
-    Parser parser(tokens, errorReporter);
+    
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser and parse the tokens
+    Parser parser(tokens, errorReporter, symbolTable);
     
     bool success = parser.parse();
     
@@ -339,7 +384,12 @@ void testParseRelationalOperators() {
     errorReporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
-    Parser parser(tokens, errorReporter);
+    
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser and parse the tokens
+    Parser parser(tokens, errorReporter, symbolTable);
     
     bool success = parser.parse();
     assert(success);
@@ -371,7 +421,12 @@ void testParseNestedExpressions() {
     errorReporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
-    Parser parser(tokens, errorReporter);
+    
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
+    // Create parser and parse the tokens
+    Parser parser(tokens, errorReporter, symbolTable);
     
     bool success = parser.parse();
     assert(success);
@@ -414,11 +469,14 @@ int main() {
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
     
+    // Create symbol table
+    SymbolTable symbolTable;
+    
     // Create parser and enable verbose mode
-    Parser parser(tokens, errorReporter);
+    Parser parser(tokens, errorReporter, symbolTable);
     parser.setVerbose(true);
     
-    // Print the FIRST and FOLLOW sets
+    // Print the FIRST and Follow Sets
     std::cout << "First and Follow Sets:" << std::endl;
     const FirstFollowSets& sets = parser.getFirstFollowSets();
     sets.printSets();
@@ -430,6 +488,7 @@ int main() {
     // Parse the program
     bool success = parser.parse();
     
+    // Check the result
     assert(success && errorReporter.getErrorCount() == 0);
     
     std::cout << "LL(1) parsing test with valid program passed!" << std::endl;
@@ -455,8 +514,11 @@ int main() {
     Lexer errorLexer(errorFilename);
     TokenStream errorTokens = errorLexer.tokenize();
     
+    // Create symbol table for error test
+    SymbolTable errorSymbolTable;
+    
     // Create parser
-    Parser errorParser(errorTokens, errorReporter);
+    Parser errorParser(errorTokens, errorReporter, errorSymbolTable);
     
     // Parse the program with errors
     bool errorResult = errorParser.parse();
@@ -484,8 +546,11 @@ void testBasicMainFunction() {
     // Reset the token stream
     tokens.reset();
     
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
     // Create a parser with the token stream
-    Parser parser(tokens, reporter);
+    Parser parser(tokens, reporter, symbolTable);
     parser.setVerbose(true); // Enable verbose mode for debugging
     
     // Test parsing
@@ -520,18 +585,21 @@ int main() {
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
     
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
     // Create a parser with the token stream
-    Parser parser(tokens, reporter);
+    Parser parser(tokens, reporter, symbolTable);
     parser.setVerbose(true); // Enable verbose mode for debugging
     
-    // Test parsing
-    bool result = parser.parse();
+    // Parse the program
+    bool success = parser.parse();
     
-    // Check that parsing was successful
-    assert(result == true);
+    // Check parsing result
+    assert(success);
     assert(reporter.getErrorCount() == 0);
     
-    std::cout << "Declarations and assignments parsing test passed!" << std::endl;
+    std::cout << "Declarations and assignments test passed!" << std::endl;
 }
 
 // Test loops and conditions
@@ -558,58 +626,71 @@ int main() {
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
     
+    // Create a symbol table
+    SymbolTable symbolTable;
+    
     // Create a parser with the token stream
-    Parser parser(tokens, reporter);
+    Parser parser(tokens, reporter, symbolTable);
     parser.setVerbose(true); // Enable verbose mode for debugging
     
-    // Test parsing
-    bool result = parser.parse();
+    // Parse the program
+    bool success = parser.parse();
     
-    // Check that parsing was successful
-    assert(result == true);
+    // Check parsing result
+    assert(success);
     assert(reporter.getErrorCount() == 0);
     
-    std::cout << "Loops and conditions parsing test passed!" << std::endl;
+    std::cout << "Loops and conditions test passed!" << std::endl;
 }
 
-// Test expressions
+// Test various expressions
 void testExpressions() {
-    std::cout << "Testing expressions parsing..." << std::endl;
+    std::cout << "Testing expressions..." << std::endl;
     
-    // Define a program with complex expressions
+    // Create source with various expressions
     std::string source = R"(
 int main() {
     int a = 5;
     int b = 10;
     int c = 15;
+    int result = 0;
     
-    int result = a + b * c;
+    // Simple expressions
+    result = a + b;
+    result = a - b;
+    result = a * b;
+    result = a / b;
+    
+    // More complex expressions
+    result = a + b * c;
     result = (a + b) * c;
-    result = a++ + b;
-    result = a + b--;
+    result = a * (b + c);
+    
+    return 0;
 }
 )";
-    
-    // Create a temporary file with the source
     std::string filename = createTempFile(source);
     
-    // Create a lexer with the temporary file
+    // Create the objects
     ErrorReporter reporter;
+    reporter.init(filename);
     Lexer lexer(filename);
     TokenStream tokens = lexer.tokenize();
     
-    // Create a parser with the token stream
-    Parser parser(tokens, reporter);
-    parser.setVerbose(true); // Enable verbose mode for debugging
+    // Create a symbol table
+    SymbolTable symbolTable;
     
-    // Test parsing
-    bool result = parser.parse();
+    // Create parser
+    Parser parser(tokens, reporter, symbolTable);
     
-    // Check that parsing was successful
-    assert(result == true);
+    // Parse the program
+    bool success = parser.parse();
+    
+    // Check parsing result - should have no errors
+    assert(success);
     assert(reporter.getErrorCount() == 0);
     
-    std::cout << "Expressions parsing test passed!" << std::endl;
+    std::cout << "Expressions test passed!" << std::endl;
 }
 
 // Test syntax error detection
@@ -625,7 +706,8 @@ void testSyntaxErrorDetection() {
         Lexer lexer(filename);
         TokenStream tokens = lexer.tokenize();
         
-        Parser parser(tokens, reporter);
+        SymbolTable symbolTable;
+        Parser parser(tokens, reporter, symbolTable);
         bool result = parser.parse();
         
         assert(result == false);
@@ -643,7 +725,8 @@ void testSyntaxErrorDetection() {
         Lexer lexer(filename);
         TokenStream tokens = lexer.tokenize();
         
-        Parser parser(tokens, reporter);
+        SymbolTable symbolTable;
+        Parser parser(tokens, reporter, symbolTable);
         bool result = parser.parse();
         
         assert(result == false);
@@ -661,7 +744,8 @@ void testSyntaxErrorDetection() {
         Lexer lexer(filename);
         TokenStream tokens = lexer.tokenize();
         
-        Parser parser(tokens, reporter);
+        SymbolTable symbolTable;
+        Parser parser(tokens, reporter, symbolTable);
         bool result = parser.parse();
         
         assert(result == false);

@@ -1,32 +1,34 @@
 # Mini C-like Compiler
 
-A simple compiler for a C-like language with limited features. This project includes a lexical analyzer, parser, and symbol table implementation.
+A simple compiler for a C-like language with limited features. This project implements a compiler frontend with lexical analysis, parsing, and symbol table management for a subset of the C programming language.
 
 ## Features
 
-- Lexical analysis of a C-like language
-- Context-free grammar (CFG) for the language
-- Top-down recursive descent parser
-- Symbol table with type checking
-- Error recovery mechanism
-- Command-line tool with debugging options
+- **Lexical Analysis**: Tokenizes source code and identifies keywords, identifiers, literals, operators, and punctuation
+- **Syntax Analysis**: Implements an LL(1) parser with FIRST and FOLLOW set computation
+- **Symbol Table**: Tracks variables, their types, and scopes with proper nesting
+- **Error Handling**: Provides detailed error messages with line and column information
+- **Semantic Analysis**: Detects variable redeclarations and type mismatches
+- **Command-line Interface**: Offers various debugging flags and options
 
 ## Language Specification
 
 The language supports:
-- Data types: `int` and `float`
-- Variable declarations with initialization
-- While loops with simple conditions
-- Arithmetic operations: `+`, `-`, `*`, `/`, `++`, `--`
-- Relational operators: `<`, `>`
-- Only a `main()` function
+- **Data Types**: `int` and `float`
+- **Control Structures**: `while` loops
+- **Operators**:
+  - Arithmetic: `+`, `-`, `*`, `/`, `++`, `--`
+  - Relational: `<`, `>`, `<=`, `>=`, `==`, `!=`
+- **Program Structure**: Only a single `main()` function
+- **Variables**: Declaration with optional initialization
+- **Statements**: Assignment, expression, return
 
 ## Building the Project
 
 ### Prerequisites
 
 - CMake 3.10 or higher
-- C++17 compatible compiler
+- C++17 compatible compiler (GCC, Clang, MSVC)
 
 ### Build Commands
 
@@ -42,85 +44,164 @@ cd build
 # Configure and build
 cmake ..
 make
-
-# Install (optional) - DON'T USE IT NOW
-make install
 ```
 
 ## Usage
+
+The minicompiler provides several options for analyzing and debugging your C-like programs:
 
 ```bash
 ./minicompiler [options] <source_file>
 ```
 
-### Options
+### Command-line Options
 
-- `--show-tokens`: Display all tokens after lexical analysis
-- `--show-symbol-table`: Display the symbol table after parsing
-- `--show-parse-steps`: Display detailed parsing steps
+- `--verbose`: Show detailed output from all compiler stages
+- `--show-tokens`: Display token stream after lexical analysis
+- `--show-parse-table`: Display the LL(1) parsing table
+- `--show-first-follow`: Display FIRST and FOLLOW sets for the grammar
+- `--show-symbol-table`: Display the final symbol table with all variables
+- `--show-parse-steps`: Show detailed parsing steps during syntax analysis
 - `--help`: Display help message
 
-### Example
+### Running the Tests
+
+The project includes a comprehensive test suite for the lexer, parser, and symbol table:
 
 ```bash
-./minicompiler --show-tokens --show-symbol-table input.c
+# Run all tests
+cd build
+ctest
+
+# Run specific test categories
+./tests/lexer_tests
+./tests/parser_tests
+./tests/symbol_table_tests
 ```
 
-## Development Guide
+### Example Usage
 
-1. The lexical analyzer (`lexer.cpp`) scans the source code and produces tokens
-2. The symbol table (`symbol_table.cpp`) stores variable information
-3. The parser (`parser.cpp`) implements the top-down parsing algorithm
-4. Error recovery is implemented in the parser
+#### Basic Compilation
+
+```bash
+./minicompiler input.c
+```
+
+#### Debugging Lexical Analysis
+
+```bash
+./minicompiler --show-tokens input.c
+```
+
+#### Full Debugging Output
+
+```bash
+./minicompiler --verbose input.c
+```
+
+## Sample Programs
+
+### Simple Program
+
+```c
+int main() {
+    int i = 0;
+    float x = 10.5;
+    
+    while (i < 10) {
+        x = x + 1.5;
+        i++;
+    }
+    
+    return 0;
+}
+```
+
+### Complex Program with Nested Blocks
+
+```c
+int main() {
+    int i = 0;
+    int max = 5;
+    float sum = 0.0;
+    
+    while (i < max) {
+        int j = 0;
+        
+        while (j < i) {
+            sum = sum + j;
+            j++;
+        }
+        
+        i++;
+    }
+    
+    return 0;
+}
+```
+
+## Project Architecture
+
+### Components
+
+1. **Lexer** (`src/lexer.cpp`, `include/lexer.h`)
+   - Tokenizes the source code
+   - Handles lexical errors
+   - Provides token statistics
+
+2. **Parser** (`src/parser.cpp`, `include/parser.h`)
+   - Implements an LL(1) parsing algorithm
+   - Computes FIRST and FOLLOW sets
+   - Builds and uses a parsing table
+   - Handles syntax errors with recovery
+
+3. **Symbol Table** (`src/symbol_table.cpp`, `include/symbol_table.h`)
+   - Tracks variable declarations and their types
+   - Manages nested scopes
+   - Detects redeclaration errors
+
+4. **Error Reporter** (`src/error.cpp`, `include/error.h`)
+   - Provides formatted error messages
+   - Tracks error counts and locations
+
+### Compiler Phases
+
+1. **Lexical Analysis**: Source code → Token stream
+2. **Syntax Analysis**: Token stream → Parse tree
+3. **Semantic Analysis**: Parse tree → Annotated AST with symbol information
+
+## Understanding the Symbol Table
+
+The symbol table uses a scope numbering scheme:
+
+- **Scope Level 0**: Global variables (outside any function)
+- **Scope Level 1**: Function parameters
+- **Scope Level 2**: Variables in the main function
+- **Scope Level 3+**: Variables in nested blocks (loops, conditionals)
+
+Each symbol entry includes:
+- Variable name
+- Data type (int, float)
+- Scope level
+- Initialization status
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature`)
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 
-## Current status:
 
-TokenStream and lexical analyser implemented along with error handling
 
-Main function output:
-```
-Test file created: test_program.c
-test_program.c:5:18: error: Unterminated string literal
-    char* str = "unterminated string;
-                  ^
-Tokens in test_program.c:
-----------------------------------------
-Token: int | Type: Keyword | Line: 2, Column: 1
-Token: main | Type: Identifier | Line: 2, Column: 5
-Token: ( | Type: Punctuation | Line: 2, Column: 9
-Token: ) | Type: Punctuation | Line: 2, Column: 10
-Token: { | Type: Punctuation | Line: 2, Column: 12
-Token: int | Type: Keyword | Line: 3, Column: 5
-Token: i | Type: Identifier | Line: 3, Column: 9
-Token: = | Type: Operator | Line: 3, Column: 11
-Token: 0 | Type: IntegerLiteral, Value: 0 | Line: 3, Column: 13
-Token: ; | Type: Operator | Line: 3, Column: 14
-Token: float | Type: Keyword | Line: 4, Column: 5
-Token: x | Type: Identifier | Line: 4, Column: 11
-Token: = | Type: Operator | Line: 4, Column: 13
-Token: 10.5 | Type: FloatLiteral, Value: 10.5 | Line: 4, Column: 15
-Token: ; | Type: Operator | Line: 4, Column: 19
-Token: char | Type: Keyword | Line: 5, Column: 5
-Token: * | Type: Operator | Line: 5, Column: 9
-Token: str | Type: Identifier | Line: 5, Column: 11
-Token: = | Type: Operator | Line: 5, Column: 15
-Token:  | Type: Error | Line: 5, Column: 17
-Token: <EOF> | Type: EOF | Line: 19, Column: 1
-----------------------------------------
-Statistics:
-Identifiers: 4
-Keywords: 4
-Errors: 1
-```
+## Debugging Tips
+
+- Use the `--verbose` flag for complete compiler output
+- Check token stream with `--show-tokens` for lexical issues
+- Examine the parse steps with `--show-parse-steps` for syntax problems
+- Review the symbol table with `--show-symbol-table` for variable issues
 
 ## License
 

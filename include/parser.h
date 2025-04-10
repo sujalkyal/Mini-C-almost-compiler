@@ -4,6 +4,7 @@
 #include "token.h"
 #include "lexer.h"
 #include "error.h"
+#include "symbol_table.h"
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -121,6 +122,7 @@ class Parser {
 private:
     TokenStream tokens;
     ErrorReporter& error_reporter;
+    SymbolTable& symbol_table;
     FirstFollowSets first_follow;
     Token* current_token;
     bool verbose; // Control debugging output
@@ -145,7 +147,7 @@ private:
     void initGrammar();
 
 public:
-    Parser(TokenStream tokens, ErrorReporter& reporter);
+    Parser(TokenStream tokens, ErrorReporter& reporter, SymbolTable& symtable);
     
     // Build the parsing table
     void buildParseTable();
